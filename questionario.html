@@ -53,62 +53,52 @@
   </div>
 
   <script>
-    const form = document.getElementById('formQuestionario');
-    const resultadoForm = document.getElementById('resultadoForm');
-    const btnVoltar = document.getElementById('btnVoltar');
+    const form = document.getElementById('formulario');
+    const mensagem = document.getElementById('mensagem');
 
-    const campoOutroConcurso = document.getElementById('campoOutroConcurso');
-    const campoPosicao = document.getElementById('campoPosicao');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
 
-    const radiosOutroConcurso = document.getElementsByName('aprovadoOutroConcurso');
-    const radiosVagas = document.getElementsByName('dentroDasVagas');
+      const dados = {
+        nome: form.nome.value.trim(),
+        posicaoAtual: form.posicaoAtual.value.trim(),
+        cargo: form.cargo.value.trim(),
+        aprovadoOutro: form.aprovadoOutro.value,
+        nomeOutroConcurso: form.nomeOutroConcurso.value.trim(),
+        dentroDasVagas: form.dentroDasVagas.value,
+        posicaoOutroConcurso: form.posicaoOutroConcurso.value.trim(),
+        vaiAssumirPC: form.vaiAssumirPC.value
+      };
 
-    // Mostrar campo texto se aprovado em outro concurso
-    radiosOutroConcurso.forEach(radio => {
-      radio.addEventListener('change', () => {
-        campoOutroConcurso.style.display = radio.value === 'Sim' && radio.checked ? 'block' : 'none';
-      });
-    });
-
-    // Mostrar campo numérico se dentro das vagas
-    radiosVagas.forEach(radio => {
-      radio.addEventListener('change', () => {
-        campoPosicao.style.display = radio.value === 'Sim' && radio.checked ? 'block' : 'none';
-      });
-    });
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-
-      const aprovadoOutro = form.aprovadoOutroConcurso.value;
-      const dentroDasVagas = form.dentroDasVagas.value;
-      const vaiAssumirPC = form.vaiAssumirPC.value;
-
-      const nomeOutroConcurso = document.getElementById('nomeOutroConcurso').value.trim();
-      const posicaoOutroConcurso = document.getElementById('posicaoOutroConcurso').value.trim();
-
-      let respostaHTML = `
-        Respostas enviadas:<br>
-        - Está aprovado em outro concurso? <strong>${aprovadoOutro}</strong><br>
-      `;
-
-      if (aprovadoOutro === 'Sim' && nomeOutroConcurso !== '') {
-        respostaHTML += `- Concurso em que foi aprovado: <strong>${nomeOutroConcurso}</strong><br>`;
+      if (!dados.nome) {
+        mensagem.textContent = "Por favor, preencha o nome.";
+        mensagem.style.color = "red";
+        return;
       }
 
-      respostaHTML += `- Está dentro das vagas deste concurso? <strong>${dentroDasVagas}</strong><br>`;
+      mensagem.textContent = "Enviando...";
+      mensagem.style.color = "black";
 
-      if (dentroDasVagas === 'Sim' && posicaoOutroConcurso !== '') {
-        respostaHTML += `- Sua posição no outro concurso: <strong>${posicaoOutroConcurso}</strong><br>`;
-      }
-
-      respostaHTML += `- Vai assumir a Polícia Civil de RO? <strong>${vaiAssumirPC}</strong>`;
-
-      resultadoForm.innerHTML = respostaHTML;
-    });
-
-    btnVoltar.addEventListener('click', () => {
-      window.location.href = 'index.html';
+      fetch('https://script.google.com/macros/s/AKfycbxWa21SP3wx0Gyot5sFmHWJn40WHlWG4kX16Z_sp2ilgTX4BcygBMYhVwEuIy3CfQugCw/exec', {
+        method: 'POST',
+        body: JSON.stringify(dados),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.text())
+      .then(text => {
+        if (text === "OK") {
+          mensagem.textContent = "Dados enviados com sucesso!";
+          mensagem.style.color = "green";
+          form.reset();
+        } else {
+          mensagem.textContent = "Erro ao enviar: " + text;
+          mensagem.style.color = "red";
+        }
+      })
+      .catch(error => {
+        mensagem.textContent = "Erro na conexão: " + error.message;
+        mensagem.style.color = "red";
+      });
     });
   </script>
 
