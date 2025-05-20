@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aprovados - Polícia Civil RO</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .resultado-box {
+      border: 2px solid #444;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #f0f0f0;
+      transition: background-color 0.3s;
+    }
+    .resultado-box:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>CR - Polícia Civil RO</h1>
+
+    <label for="inputNome">Digite seu nome:</label>
+    <input type="text" id="inputNome" placeholder="Ex: João Silva" autocomplete="off" />
+
+    <button id="btnBuscar">Buscar</button>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const btnBuscar = document.getElementById('btnBuscar');
+    const inputNome = document.getElementById('inputNome');
+    const resultado = document.getElementById('resultado');
+
+    let dados = [];
+
+    async function carregarCSV(url, cargo) {
+      const resposta = await fetch(url);
+      const texto = await resposta.text();
+      const linhas = texto.trim().split('\n').filter(linha => linha.trim() !== '');
+      return linhas.map(linha => {
+        const partes = linha.split(',');
+        const nome = partes[0].replace(/^"|"$/g, '').trim();
+        const posicao = partes[1].replace(/^"|"$/g, '').trim();
+        return { nome, posicao, cargo };
+      });
+    }
+
+    async function carregarDados() {
+      const agentes = await carregarCSV('agente.csv', 'Agente');
+      const escrivaos = await carregarCSV('escrivao.csv', 'Escrivão');
+      dados = [...agentes, ...escrivaos];
+    }
+
+    btnBuscar.addEventListener('click', () => {
+      const nomeBusca = inputNome.value.trim().toLowerCase();
+      resultado.innerHTML = "";
+
+      if (!nomeBusca) {
+        resultado.textContent = "Por favor, digite um nome para buscar.";
+        return;
+      }
+
+      const encontrados = dados.filter(item => item.nome.toLowerCase().includes(nomeBusca));
+
+      if (encontrados.length > 0) {
+        encontrados.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'resultado-box';
+          div.innerHTML = `
+            <strong>Nome:</strong> ${item.nome}<br>
+            <strong>Cargo:</strong> ${item.cargo}<br>
+            <strong>Posição:</strong> ${item.posicao}
+          `;
+          div.addEventListener('click', () => {
+            localStorage.setItem('nomeSelecionado', item.nome);
+            window.location.href = 'questionario.html';
+          });
+          resultado.appendChild(div);
+        });
+
+        // Mensagem para orientar o usuário
+        const info = document.createElement('p');
+        info.style.marginTop = '10px';
+        info.style.fontStyle = 'italic';
+        info.textContent = 'Clique no nome acima para continuar para o questionário.';
+        resultado.appendChild(info);
+
+      } else {
+        resultado.textContent = "Nome não encontrado na lista dos aprovados.";
+      }
+    });
+
+    carregarDados();
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

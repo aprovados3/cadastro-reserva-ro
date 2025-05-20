@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Questionário - Polícia Civil RO</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <h1>Questionário</h1>
+
+    <form id="formQuestionario">
+      <!-- Pergunta 1 -->
+      <div class="pergunta">
+        <p>Você está aprovado em outro concurso?</p>
+        <label><input type="radio" name="aprovadoOutroConcurso" value="Sim" required> Sim</label>
+        <label><input type="radio" name="aprovadoOutroConcurso" value="Não"> Não</label>
+      </div>
+
+      <!-- Campo aparece se a resposta for "Sim" -->
+      <div class="pergunta" id="campoOutroConcurso" style="display: none;">
+        <p>Qual concurso que você está dentro das vagas?</p>
+        <input type="text" id="nomeOutroConcurso" placeholder="Ex: PRF, INSS, PF" />
+      </div>
+
+      <!-- Pergunta 2 -->
+      <div class="pergunta">
+        <p>Você está dentro das vagas deste concurso?</p>
+        <label><input type="radio" name="dentroDasVagas" value="Sim" required> Sim</label>
+        <label><input type="radio" name="dentroDasVagas" value="Não"> Não</label>
+      </div>
+
+      <!-- Campo aparece se a resposta for "Sim" -->
+      <div class="pergunta" id="campoPosicao" style="display: none;">
+        <p>Qual sua posição neste concurso?</p>
+        <input type="number" id="posicaoOutroConcurso" min="1" placeholder="Ex: 35" />
+      </div>
+
+      <!-- Pergunta 3 -->
+      <div class="pergunta">
+        <p>Você vai assumir a Polícia Civil de Rondônia?</p>
+        <label><input type="radio" name="vaiAssumirPC" value="Sim" required> Sim</label>
+        <label><input type="radio" name="vaiAssumirPC" value="Não"> Não</label>
+      </div>
+
+      <button type="submit">Enviar</button>
+    </form>
+
+    <div id="resultadoForm" style="margin-top: 20px; font-weight: bold;"></div>
+
+    <button id="btnVoltar" style="margin-top: 20px;">Voltar para Consulta</button>
+  </div>
+
+  <script>
+    const form = document.getElementById('formQuestionario');
+    const resultadoForm = document.getElementById('resultadoForm');
+    const btnVoltar = document.getElementById('btnVoltar');
+
+    const campoOutroConcurso = document.getElementById('campoOutroConcurso');
+    const campoPosicao = document.getElementById('campoPosicao');
+
+    const radiosOutroConcurso = document.getElementsByName('aprovadoOutroConcurso');
+    const radiosVagas = document.getElementsByName('dentroDasVagas');
+
+    // Mostrar campo texto se aprovado em outro concurso
+    radiosOutroConcurso.forEach(radio => {
+      radio.addEventListener('change', () => {
+        campoOutroConcurso.style.display = radio.value === 'Sim' && radio.checked ? 'block' : 'none';
+      });
+    });
+
+    // Mostrar campo numérico se dentro das vagas
+    radiosVagas.forEach(radio => {
+      radio.addEventListener('change', () => {
+        campoPosicao.style.display = radio.value === 'Sim' && radio.checked ? 'block' : 'none';
+      });
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const aprovadoOutro = form.aprovadoOutroConcurso.value;
+      const dentroDasVagas = form.dentroDasVagas.value;
+      const vaiAssumirPC = form.vaiAssumirPC.value;
+
+      const nomeOutroConcurso = document.getElementById('nomeOutroConcurso').value.trim();
+      const posicaoOutroConcurso = document.getElementById('posicaoOutroConcurso').value.trim();
+
+      let respostaHTML = `
+        Respostas enviadas:<br>
+        - Está aprovado em outro concurso? <strong>${aprovadoOutro}</strong><br>
+      `;
+
+      if (aprovadoOutro === 'Sim' && nomeOutroConcurso !== '') {
+        respostaHTML += `- Concurso em que foi aprovado: <strong>${nomeOutroConcurso}</strong><br>`;
+      }
+
+      respostaHTML += `- Está dentro das vagas deste concurso? <strong>${dentroDasVagas}</strong><br>`;
+
+      if (dentroDasVagas === 'Sim' && posicaoOutroConcurso !== '') {
+        respostaHTML += `- Sua posição no outro concurso: <strong>${posicaoOutroConcurso}</strong><br>`;
+      }
+
+      respostaHTML += `- Vai assumir a Polícia Civil de RO? <strong>${vaiAssumirPC}</strong>`;
+
+      resultadoForm.innerHTML = respostaHTML;
+    });
+
+    btnVoltar.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
