@@ -2,112 +2,138 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Questionário Polícia Civil RO</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 0 10px; }
-    label { display: block; margin-top: 15px; }
-    input, select { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
-    #mensagem { margin-top: 20px; font-weight: bold; }
-  </style>
+  <title>Questionário - Polícia Civil RO</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Questionário Polícia Civil RO</h1>
-  <form id="formulario">
-    <label for="nome">Nome:</label>
-    <input type="text" id="nome" name="nome" required />
 
-    <label for="posicaoAtual">Posição Atual:</label>
-    <input type="text" id="posicaoAtual" name="posicaoAtual" />
+  <div class="container">
+    <h1>Questionário</h1>
 
-    <label for="cargo">Cargo:</label>
-    <input type="text" id="cargo" name="cargo" />
+    <form id="formQuestionario">
+      <!-- Pergunta 1 -->
+      <div class="pergunta">
+        <p>Você está aprovado em outro concurso?</p>
+        <label><input type="radio" name="aprovadoOutroConcurso" value="Sim" required> Sim</label>
+        <label><input type="radio" name="aprovadoOutroConcurso" value="Não"> Não</label>
+      </div>
 
-    <label for="aprovadoOutro">Aprovado em Outro Concurso?</label>
-    <select id="aprovadoOutro" name="aprovadoOutro">
-      <option value="">-- Selecione --</option>
-      <option value="Sim">Sim</option>
-      <option value="Não">Não</option>
-    </select>
+      <!-- Campo aparece se a resposta for "Sim" -->
+      <div class="pergunta" id="campoOutroConcurso" style="display: none;">
+        <p>Qual concurso que você está dentro das vagas?</p>
+        <input type="text" id="nomeOutroConcurso" placeholder="Ex: PRF, INSS, PF" />
+      </div>
 
-    <label for="nomeOutroConcurso">Nome do Outro Concurso:</label>
-    <input type="text" id="nomeOutroConcurso" name="nomeOutroConcurso" />
+      <!-- Pergunta 2 -->
+      <div class="pergunta">
+        <p>Você está dentro das vagas deste concurso?</p>
+        <label><input type="radio" name="dentroDasVagas" value="Sim" required> Sim</label>
+        <label><input type="radio" name="dentroDasVagas" value="Não"> Não</label>
+      </div>
 
-    <label for="dentroDasVagas">Dentro das Vagas?</label>
-    <select id="dentroDasVagas" name="dentroDasVagas">
-      <option value="">-- Selecione --</option>
-      <option value="Sim">Sim</option>
-      <option value="Não">Não</option>
-    </select>
+      <!-- Campo aparece se a resposta for "Sim" -->
+      <div class="pergunta" id="campoPosicao" style="display: none;">
+        <p>Qual sua posição neste concurso?</p>
+        <input type="number" id="posicaoOutroConcurso" min="1" placeholder="Ex: 35" />
+      </div>
 
-    <label for="posicaoOutroConcurso">Posição no Outro Concurso:</label>
-    <input type="text" id="posicaoOutroConcurso" name="posicaoOutroConcurso" />
+      <!-- Pergunta 3 -->
+      <div class="pergunta">
+        <p>Você vai assumir a Polícia Civil de Rondônia?</p>
+        <label><input type="radio" name="vaiAssumirPC" value="Sim" required> Sim</label>
+        <label><input type="radio" name="vaiAssumirPC" value="Não"> Não</label>
+      </div>
 
-    <label for="vaiAssumirPC">Vai Assumir na Polícia Civil?</label>
-    <select id="vaiAssumirPC" name="vaiAssumirPC">
-      <option value="">-- Selecione --</option>
-      <option value="Sim">Sim</option>
-      <option value="Não">Não</option>
-    </select>
+      <button type="submit">Enviar</button>
+    </form>
 
-    <button type="submit">Enviar</button>
-  </form>
+    <div id="resultadoForm" style="margin-top: 20px; font-weight: bold;"></div>
 
-  <div id="mensagem"></div>
+    <button id="btnVoltar" style="margin-top: 20px;">Voltar para Consulta</button>
+  </div>
 
   <script>
-    const form = document.getElementById('formulario');
-    const mensagem = document.getElementById('mensagem');
+    const form = document.getElementById('formQuestionario');
+    const resultadoForm = document.getElementById('resultadoForm');
+    const btnVoltar = document.getElementById('btnVoltar');
 
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
+    const campoOutroConcurso = document.getElementById('campoOutroConcurso');
+    const campoPosicao = document.getElementById('campoPosicao');
 
-      const dados = {
-        nome: form.nome.value.trim(),
-        posicaoAtual: form.posicaoAtual.value.trim(),
-        cargo: form.cargo.value.trim(),
-        aprovadoOutro: form.aprovadoOutro.value,
-        nomeOutroConcurso: form.nomeOutroConcurso.value.trim(),
-        dentroDasVagas: form.dentroDasVagas.value,
-        posicaoOutroConcurso: form.posicaoOutroConcurso.value.trim(),
-        vaiAssumirPC: form.vaiAssumirPC.value
-      };
+    const radiosOutroConcurso = document.getElementsByName('aprovadoOutroConcurso');
+    const radiosVagas = document.getElementsByName('dentroDasVagas');
 
-      if (!dados.nome) {
-        mensagem.textContent = "Por favor, preencha o nome.";
-        mensagem.style.color = "red";
-        return;
-      }
-
-      mensagem.textContent = "Enviando...";
-      mensagem.style.color = "black";
-
-      fetch('https://script.google.com/macros/s/AKfycbzKPMiFienRx-QoO77yRWJFxf-74iNahr3VLoZGlHw_wF_Cxn6ruBbBgmAqPKIAF9NbUg/exec', {
-        method: 'POST',
-        body: JSON.stringify(dados),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(response => response.text())
-      .then(text => {
-        if (text === "OK") {
-          mensagem.textContent = "Dados enviados com sucesso!";
-          mensagem.style.color = "green";
-          form.reset();
-        } else {
-          mensagem.textContent = "Erro ao enviar: " + text;
-          mensagem.style.color = "red";
-        }
-      })
-      .catch(error => {
-        mensagem.textContent = "Erro na conexão: " + error.message;
-        mensagem.style.color = "red";
+    // Mostrar campo texto se aprovado em outro concurso
+    radiosOutroConcurso.forEach(radio => {
+      radio.addEventListener('change', () => {
+        campoOutroConcurso.style.display = radio.value === 'Sim' && radio.checked ? 'block' : 'none';
       });
     });
+
+    // Mostrar campo numérico se dentro das vagas
+    radiosVagas.forEach(radio => {
+      radio.addEventListener('change', () => {
+        campoPosicao.style.display = radio.value === 'Sim' && radio.checked ? 'block' : 'none';
+      });
+    });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const aprovadoOutro = form.aprovadoOutroConcurso.value;
+      const dentroDasVagas = form.dentroDasVagas.value;
+      const vaiAssumirPC = form.vaiAssumirPC.value;
+
+      const nomeOutroConcurso = document.getElementById('nomeOutroConcurso').value.trim();
+      const posicaoOutroConcurso = document.getElementById('posicaoOutroConcurso').value.trim();
+
+      // Pegando nome, posição e cargo do localStorage
+      const nome = localStorage.getItem('nomeSelecionado') || '';
+      const posicaoAtual = localStorage.getItem('posicaoSelecionada') || '';
+      const cargo = localStorage.getItem('cargoSelecionado') || '';
+
+      // Montar objeto com dados para enviar
+      const dadosParaEnviar = {
+        nome,
+        posicaoAtual,
+        cargo,
+        aprovadoOutro,
+        nomeOutroConcurso,
+        dentroDasVagas,
+        posicaoOutroConcurso,
+        vaiAssumirPC
+      };
+
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbz6xiJlao8L4SuisnCkdjGFZeHIeG4cdX6-FIMi7GPx1LfjxOvmv4m__3Ounj9HhCjcMA/exec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dadosParaEnviar)
+        });
+
+        const texto = await response.text();
+
+        if (texto === 'OK') {
+          resultadoForm.innerHTML = 'Dados enviados com sucesso! Obrigado.';
+          form.reset();
+          campoOutroConcurso.style.display = 'none';
+          campoPosicao.style.display = 'none';
+        } else {
+          resultadoForm.innerHTML = 'Erro ao enviar dados. Tente novamente.';
+        }
+      } catch (error) {
+        resultadoForm.innerHTML = 'Erro na conexão. Tente novamente.';
+        console.error(error);
+      }
+    });
+
+    btnVoltar.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
   </script>
+
 </body>
 </html>
-
 
 
 
