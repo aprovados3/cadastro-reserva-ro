@@ -78,7 +78,13 @@
             <strong>Posição:</strong> ${item.posicao}
           `;
           div.addEventListener('click', () => {
-            localStorage.setItem('nomeSelecionado', item.nome);
+            // Agora salvo tudo num objeto JSON para facilitar na próxima página
+            const usuarioSelecionado = {
+              nome: item.nome,
+              posicao: item.posicao,
+              cargo: item.cargo
+            };
+            localStorage.setItem('usuarioSelecionado', JSON.stringify(usuarioSelecionado));
             window.location.href = 'questionario.html';
           });
           resultado.appendChild(div);
@@ -101,6 +107,7 @@
 
 </body>
 </html>
+
 
 
 
