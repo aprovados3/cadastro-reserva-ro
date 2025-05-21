@@ -5,22 +5,22 @@
   <title>Aprovados - Polícia Civil RO</title>
   <style>
     html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* evita barra de rolagem horizontal */
-}
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background-image: url('civil.jfif');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed; /* fixa a imagem no lugar */
-  backdrop-filter: brightness(0.85);
-  min-height: 100vh;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('civil.jfif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      backdrop-filter: brightness(0.85);
+      min-height: 100vh;
+    }
 
     .container {
       max-width: 600px;
@@ -66,12 +66,28 @@ body {
       box-sizing: border-box;
     }
 
-    .botoes-container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
+    #mensagem {
+      color: #d9534f; /* vermelho alerta */
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      min-height: 24px; /* para não "pular" quando aparece/desaparece */
     }
 
+    .buscar-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .botoes-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .buscar-container button,
     .botoes-container button {
       padding: 10px 20px;
       font-size: 16px;
@@ -81,10 +97,11 @@ body {
       background-color: #007BFF;
       color: white;
       transition: background-color 0.3s;
-      flex: 1;
-      margin: 0 5px;
+      width: 180px;
+      text-align: center;
     }
 
+    .buscar-container button:hover,
     .botoes-container button:hover {
       background-color: #0056b3;
     }
@@ -108,17 +125,24 @@ body {
     <h1>CR - Polícia Civil RO</h1>
     <div id="infoContadores" class="info-box">
       <span>👮‍♂️ <strong>Total Agentes:</strong> <span id="totalAgentes">0</span></span>
-      <span>📝 <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
-      <span>📊 <strong>Total Geral:</strong> <span id="totalGeral">0</span></span>
-      <span>👥 <strong>Total em Ambos:</strong> <span id="totalAmbos">0</span></span>
+      <span>💼 <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
+      <span>🚓 <strong>Total Geral:</strong> <span id="totalGeral">0</span></span>
+      <span>⇄ <strong>Total em Ambos:</strong> <span id="totalAmbos">0</span></span>
     </div>
 
     <label for="inputNome">Digite seu nome:</label>
     <input type="text" id="inputNome" placeholder="Ex: João Silva" autocomplete="off" />
 
-    <div class="botoes-container">
+    <div id="mensagem"></div>
+
+    <div class="buscar-container">
       <button id="btnBuscar">🔎 Buscar</button>
+    </div>
+
+    <div class="botoes-container">
       <button id="btnListarAmbos">👥 Aprovados em dois cargos</button>
+      <button id="btnListarAgentes">👮‍♂️ Listar Agentes</button>
+      <button id="btnListarEscrivao">📝 Listar Escrivães</button>
     </div>
 
     <div id="resultado"></div>
@@ -127,8 +151,11 @@ body {
   <script>
     const btnBuscar = document.getElementById('btnBuscar');
     const btnListarAmbos = document.getElementById('btnListarAmbos');
+    const btnListarAgentes = document.getElementById('btnListarAgentes');
+    const btnListarEscrivao = document.getElementById('btnListarEscrivao');
     const inputNome = document.getElementById('inputNome');
     const resultado = document.getElementById('resultado');
+    const mensagem = document.getElementById('mensagem');
 
     const totalAgentesSpan = document.getElementById('totalAgentes');
     const totalEscrivaoSpan = document.getElementById('totalEscrivao');
@@ -166,71 +193,80 @@ body {
       totalAmbosSpan.textContent = nomesAmbos.length;
     }
 
+    function mostrarMensagemStatus(texto) {
+      mensagem.textContent = texto;
+    }
+
     function mostrarResultados(lista) {
-  resultado.innerHTML = "";
-  if (lista.length === 0) {
-    resultado.textContent = "❌ Nenhum resultado encontrado.";
-    return;
-  }
+      resultado.innerHTML = "";
+      if (lista.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum resultado encontrado.");
+        return;
+      }
+      mostrarMensagemStatus("");
 
-  lista.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'resultado-box';
+      lista.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'resultado-box';
 
-    let html = `<strong>Nome:</strong> ${item.nome}<br>`;
+        let html = `<strong>Nome:</strong> ${item.nome}<br>`;
 
-    if (item.posicaoAgente && item.posicaoAgente.toLowerCase() !== 'null') {
-      html += `<strong>👮‍♂️ Posição como Agente:</strong>  ${item.posicaoAgente}<br>`;
+        if (item.posicaoAgente && item.posicaoAgente.toLowerCase() !== 'null') {
+          html += `<strong>👮‍♂️ Posição como Agente:</strong>  ${item.posicaoAgente}<br>`;
+        }
+
+        if (item.posicaoEscrivao && item.posicaoEscrivao.toLowerCase() !== 'null') {
+          html += `<strong>📝 Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
+        }
+
+        div.innerHTML = html;
+        resultado.appendChild(div);
+      });
     }
 
-    if (item.posicaoEscrivao && item.posicaoEscrivao.toLowerCase() !== 'null') {
-      html += `<strong>📝 Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
-    }
-
-    div.innerHTML = html;
-    resultado.appendChild(div);
-  });
-}
     function buscarNome(nomeBusca) {
-  resultado.innerHTML = "";
-  if (!nomeBusca) {
-    resultado.textContent = "⚠️ Por favor, digite um nome para buscar.";
-    return;
-  }
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
 
-  const nomeMinusculo = nomeBusca.toLowerCase();
-  const encontradosAgente = agentes.filter(a => a.nome.toLowerCase().includes(nomeMinusculo));
-  const encontradosEscrivao = escrivaos.filter(e => e.nome.toLowerCase().includes(nomeMinusculo));
+      if (!nomeBusca) {
+        mostrarMensagemStatus("⚠️ Por favor, digite um nome para buscar.");
+        return;
+      }
 
-  // Criar um Set com todos os nomes únicos encontrados
-  const nomesUnicosSet = new Set([
-    ...encontradosAgente.map(a => a.nome),
-    ...encontradosEscrivao.map(e => e.nome)
-  ]);
-  const nomesUnicos = [...nomesUnicosSet];
+      const nomeMinusculo = nomeBusca.toLowerCase();
+      const encontradosAgente = agentes.filter(a => a.nome.toLowerCase().includes(nomeMinusculo));
+      const encontradosEscrivao = escrivaos.filter(e => e.nome.toLowerCase().includes(nomeMinusculo));
 
-  // Montar lista com nome e posições nos cargos encontrados
-  const listaResultado = nomesUnicos.map(nome => {
-    const agenteItem = encontradosAgente.find(a => a.nome === nome);
-    const escrivaoItem = encontradosEscrivao.find(e => e.nome === nome);
+      const nomesUnicosSet = new Set([
+        ...encontradosAgente.map(a => a.nome),
+        ...encontradosEscrivao.map(e => e.nome)
+      ]);
+      const nomesUnicos = [...nomesUnicosSet];
 
-    return {
-      nome: nome,
-      posicaoAgente: agenteItem ? agenteItem.posicao : null,
-      posicaoEscrivao: escrivaoItem ? escrivaoItem.posicao : null
-    };
-  });
+      const listaResultado = nomesUnicos.map(nome => {
+        const agenteItem = encontradosAgente.find(a => a.nome === nome);
+        const escrivaoItem = encontradosEscrivao.find(e => e.nome === nome);
 
-  mostrarResultados(listaResultado);
-}
+        return {
+          nome: nome,
+          posicaoAgente: agenteItem ? agenteItem.posicao : null,
+          posicaoEscrivao: escrivaoItem ? escrivaoItem.posicao : null
+        };
+      });
+
+      mostrarResultados(listaResultado);
+    }
+
     function listarAprovadosNosDois() {
       resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
       const nomesAgente = new Set(agentes.map(a => a.nome));
       const nomesEscrivao = new Set(escrivaos.map(e => e.nome));
       const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
 
       if (nomesAmbos.length === 0) {
-        resultado.textContent = "❌ Nenhum aprovado em dois cargos encontrado.";
+        mostrarMensagemStatus("❌ Nenhum aprovado em dois cargos encontrado.");
         return;
       }
 
@@ -238,7 +274,7 @@ body {
       nomesAmbos.forEach(nome => {
         const agenteItem = agentes.find(a => a.nome === nome);
         const escrivaoItem = escrivaos.find(e => e.nome === nome);
-        
+
         listaAmbos.push({
           nome: nome,
           posicaoAgente: agenteItem.posicao,
@@ -249,28 +285,69 @@ body {
       mostrarResultados(listaAmbos);
     }
 
+    function listarAgentes() {
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
+      if (agentes.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum agente encontrado.");
+        return;
+      }
+      const lista = agentes.map(a => ({
+        nome: a.nome,
+        posicaoAgente: a.posicao,
+        posicaoEscrivao: null
+      }));
+      mostrarResultados(lista);
+    }
+
+    function listarEscrivao() {
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
+      if (escrivaos.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum escrivão encontrado.");
+        return;
+      }
+      const lista = escrivaos.map(e => ({
+        nome: e.nome,
+        posicaoAgente: null,
+        posicaoEscrivao: e.posicao
+      }));
+      mostrarResultados(lista);
+    }
+
     btnBuscar.addEventListener('click', () => {
       const nomeBusca = inputNome.value.trim();
       buscarNome(nomeBusca);
     });
 
-    inputNome.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        const nomeBusca = inputNome.value.trim();
-        buscarNome(nomeBusca);
+    inputNome.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnBuscar.click();
       }
     });
 
-    btnListarAmbos.addEventListener('click', () => {
-      listarAprovadosNosDois();
+    btnListarAmbos.addEventListener('click', listarAprovadosNosDois);
+    btnListarAgentes.addEventListener('click', listarAgentes);
+    btnListarEscrivao.addEventListener('click', listarEscrivao);
+
+    carregarDados().catch(e => {
+      mostrarMensagemStatus('Erro ao carregar dados. Atualize a página.');
+      console.error('Erro ao carregar CSV:', e);
     });
-
-    carregarDados();
   </script>
-
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
