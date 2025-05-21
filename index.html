@@ -10,12 +10,49 @@
       padding: 15px;
       margin-top: 15px;
       border-radius: 8px;
-      cursor: pointer;
+      cursor: default;
       background-color: #f0f0f0;
       transition: background-color 0.3s;
     }
     .resultado-box:hover {
       background-color: #e0e0e0;
+    }
+    .container {
+      max-width: 450px;
+      margin: 40px auto;
+      font-family: Arial, sans-serif;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      transition: background-color 0.3s;
+      margin-right: 8px;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .botoes-lista {
+      margin-bottom: 10px;
+      text-align: center;
     }
   </style>
 </head>
@@ -23,6 +60,11 @@
 
   <div class="container">
     <h1>CR - Polícia Civil RO</h1>
+
+    <div class="botoes-lista">
+      <button id="btnListarAgentes">Listar Agentes</button>
+      <button id="btnListarEscrivao">Listar Escrivães</button>
+    </div>
 
     <label for="inputNome">Digite seu nome:</label>
     <input type="text" id="inputNome" placeholder="Ex: João Silva" autocomplete="off" />
@@ -34,6 +76,8 @@
 
   <script>
     const btnBuscar = document.getElementById('btnBuscar');
+    const btnListarAgentes = document.getElementById('btnListarAgentes');
+    const btnListarEscrivao = document.getElementById('btnListarEscrivao');
     const inputNome = document.getElementById('inputNome');
     const resultado = document.getElementById('resultado');
 
@@ -57,6 +101,24 @@
       dados = [...agentes, ...escrivaos];
     }
 
+    function exibirResultados(lista) {
+      resultado.innerHTML = "";
+      if (lista.length === 0) {
+        resultado.textContent = "Nenhum resultado encontrado.";
+        return;
+      }
+      lista.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'resultado-box';
+        div.innerHTML = `
+          <strong>Nome:</strong> ${item.nome}<br>
+          <strong>Cargo:</strong> ${item.cargo}<br>
+          <strong>Posição:</strong> ${item.posicao}
+        `;
+        resultado.appendChild(div);
+      });
+    }
+
     btnBuscar.addEventListener('click', () => {
       const nomeBusca = inputNome.value.trim().toLowerCase();
       resultado.innerHTML = "";
@@ -69,37 +131,26 @@
       const encontrados = dados.filter(item => item.nome.toLowerCase().includes(nomeBusca));
 
       if (encontrados.length > 0) {
-        encontrados.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'resultado-box';
-          div.innerHTML = `
-            <strong>Nome:</strong> ${item.nome}<br>
-            <strong>Cargo:</strong> ${item.cargo}<br>
-            <strong>Posição:</strong> ${item.posicao}
-          `;
-          div.addEventListener('click', () => {
-            // Agora salvo tudo num objeto JSON para facilitar na próxima página
-            const usuarioSelecionado = {
-              nome: item.nome,
-              posicao: item.posicao,
-              cargo: item.cargo
-            };
-            localStorage.setItem('usuarioSelecionado', JSON.stringify(usuarioSelecionado));
-            window.location.href = 'questionario.html';
-          });
-          resultado.appendChild(div);
-        });
-
-        // Mensagem para orientar o usuário
-        const info = document.createElement('p');
-        info.style.marginTop = '10px';
-        info.style.fontStyle = 'italic';
-        info.textContent = 'Clique no nome acima para continuar para o questionário.';
-        resultado.appendChild(info);
-
+        exibirResultados(encontrados);
       } else {
         resultado.textContent = "Nome não encontrado na lista dos aprovados.";
       }
+    });
+
+    inputNome.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        btnBuscar.click();
+      }
+    });
+
+    btnListarAgentes.addEventListener('click', () => {
+      const agentes = dados.filter(item => item.cargo === 'Agente');
+      exibirResultados(agentes);
+    });
+
+    btnListarEscrivao.addEventListener('click', () => {
+      const escrivaos = dados.filter(item => item.cargo === 'Escrivão');
+      exibirResultados(escrivaos);
     });
 
     carregarDados();
@@ -107,6 +158,8 @@
 
 </body>
 </html>
+
+
 
 
 
