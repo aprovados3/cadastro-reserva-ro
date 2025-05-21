@@ -3,25 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <title>Aprovados - Polícia Civil RO</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
-    .resultado-box {
-      border: 2px solid #444;
-      padding: 15px;
-      margin-top: 15px;
-      border-radius: 8px;
-      cursor: default;
-      background-color: #f0f0f0;
-      transition: background-color 0.3s;
-    }
-    .resultado-box:hover {
-      background-color: #e0e0e0;
-    }
+    html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* evita barra de rolagem horizontal */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-image: url('civil.jfif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* fixa a imagem no lugar */
+  backdrop-filter: brightness(0.85);
+  min-height: 100vh;
+}
+
     .container {
-      max-width: 450px;
+      max-width: 600px;
       margin: 40px auto;
-      font-family: Arial, sans-serif;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    #infoContadores {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    label {
+      font-weight: bold;
+      color: #555;
+    }
+
     input[type="text"] {
       width: 100%;
       padding: 10px;
@@ -30,9 +63,17 @@
       border-radius: 5px;
       border: 1px solid #ccc;
       font-size: 16px;
+      box-sizing: border-box;
     }
-    button {
-      padding: 10px 15px;
+
+    .botoes-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    .botoes-container button {
+      padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
       border-radius: 5px;
@@ -40,19 +81,24 @@
       background-color: #007BFF;
       color: white;
       transition: background-color 0.3s;
-      margin-right: 8px;
-      margin-top: 5px;
+      flex: 1;
+      margin: 0 5px;
     }
-    button:hover {
+
+    .botoes-container button:hover {
       background-color: #0056b3;
     }
-    h1 {
-      text-align: center;
-      color: #333;
+
+    .resultado-box {
+      border: 2px solid #444;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+      background-color: #f0f0f0;
     }
-    .botoes-lista {
-      margin-bottom: 10px;
-      text-align: center;
+
+    .resultado-box:hover {
+      background-color: #e0e0e0;
     }
   </style>
 </head>
@@ -60,28 +106,38 @@
 
   <div class="container">
     <h1>CR - Polícia Civil RO</h1>
-
-    <div class="botoes-lista">
-      <button id="btnListarAgentes">Listar Agentes</button>
-      <button id="btnListarEscrivao">Listar Escrivães</button>
+    <div id="infoContadores" class="info-box">
+      <span>👮‍♂️ <strong>Total Agentes:</strong> <span id="totalAgentes">0</span></span>
+      <span>📝 <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
+      <span>📊 <strong>Total Geral:</strong> <span id="totalGeral">0</span></span>
+      <span>👥 <strong>Total em Ambos:</strong> <span id="totalAmbos">0</span></span>
     </div>
 
     <label for="inputNome">Digite seu nome:</label>
     <input type="text" id="inputNome" placeholder="Ex: João Silva" autocomplete="off" />
 
-    <button id="btnBuscar">Buscar</button>
+    <div class="botoes-container">
+      <button id="btnBuscar">🔎 Buscar</button>
+      <button id="btnListarAmbos">👥 Aprovados em dois cargos</button>
+    </div>
 
     <div id="resultado"></div>
   </div>
 
   <script>
     const btnBuscar = document.getElementById('btnBuscar');
-    const btnListarAgentes = document.getElementById('btnListarAgentes');
-    const btnListarEscrivao = document.getElementById('btnListarEscrivao');
+    const btnListarAmbos = document.getElementById('btnListarAmbos');
     const inputNome = document.getElementById('inputNome');
     const resultado = document.getElementById('resultado');
 
+    const totalAgentesSpan = document.getElementById('totalAgentes');
+    const totalEscrivaoSpan = document.getElementById('totalEscrivao');
+    const totalGeralSpan = document.getElementById('totalGeral');
+    const totalAmbosSpan = document.getElementById('totalAmbos');
+
     let dados = [];
+    let agentes = [];
+    let escrivaos = [];
 
     async function carregarCSV(url, cargo) {
       const resposta = await fetch(url);
@@ -96,61 +152,118 @@
     }
 
     async function carregarDados() {
-      const agentes = await carregarCSV('agente.csv', 'Agente');
-      const escrivaos = await carregarCSV('escrivao.csv', 'Escrivão');
+      agentes = await carregarCSV('agente.csv', 'Agente');
+      escrivaos = await carregarCSV('escrivao.csv', 'Escrivão');
       dados = [...agentes, ...escrivaos];
+
+      totalAgentesSpan.textContent = agentes.length;
+      totalEscrivaoSpan.textContent = escrivaos.length;
+      totalGeralSpan.textContent = dados.length;
+
+      const nomesAgente = new Set(agentes.map(a => a.nome));
+      const nomesEscrivao = new Set(escrivaos.map(e => e.nome));
+      const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
+      totalAmbosSpan.textContent = nomesAmbos.length;
     }
 
-    function exibirResultados(lista) {
+    function mostrarResultados(lista) {
+  resultado.innerHTML = "";
+  if (lista.length === 0) {
+    resultado.textContent = "❌ Nenhum resultado encontrado.";
+    return;
+  }
+
+  lista.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'resultado-box';
+
+    let html = `<strong>Nome:</strong> ${item.nome}<br>`;
+
+    if (item.posicaoAgente && item.posicaoAgente.toLowerCase() !== 'null') {
+      html += `<strong>👮‍♂️ Posição como Agente:</strong>  ${item.posicaoAgente}<br>`;
+    }
+
+    if (item.posicaoEscrivao && item.posicaoEscrivao.toLowerCase() !== 'null') {
+      html += `<strong>📝 Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
+    }
+
+    div.innerHTML = html;
+    resultado.appendChild(div);
+  });
+}
+    function buscarNome(nomeBusca) {
+  resultado.innerHTML = "";
+  if (!nomeBusca) {
+    resultado.textContent = "⚠️ Por favor, digite um nome para buscar.";
+    return;
+  }
+
+  const nomeMinusculo = nomeBusca.toLowerCase();
+  const encontradosAgente = agentes.filter(a => a.nome.toLowerCase().includes(nomeMinusculo));
+  const encontradosEscrivao = escrivaos.filter(e => e.nome.toLowerCase().includes(nomeMinusculo));
+
+  // Criar um Set com todos os nomes únicos encontrados
+  const nomesUnicosSet = new Set([
+    ...encontradosAgente.map(a => a.nome),
+    ...encontradosEscrivao.map(e => e.nome)
+  ]);
+  const nomesUnicos = [...nomesUnicosSet];
+
+  // Montar lista com nome e posições nos cargos encontrados
+  const listaResultado = nomesUnicos.map(nome => {
+    const agenteItem = encontradosAgente.find(a => a.nome === nome);
+    const escrivaoItem = encontradosEscrivao.find(e => e.nome === nome);
+
+    return {
+      nome: nome,
+      posicaoAgente: agenteItem ? agenteItem.posicao : null,
+      posicaoEscrivao: escrivaoItem ? escrivaoItem.posicao : null
+    };
+  });
+
+  mostrarResultados(listaResultado);
+}
+    function listarAprovadosNosDois() {
       resultado.innerHTML = "";
-      if (lista.length === 0) {
-        resultado.textContent = "Nenhum resultado encontrado.";
+      const nomesAgente = new Set(agentes.map(a => a.nome));
+      const nomesEscrivao = new Set(escrivaos.map(e => e.nome));
+      const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
+
+      if (nomesAmbos.length === 0) {
+        resultado.textContent = "❌ Nenhum aprovado em dois cargos encontrado.";
         return;
       }
-      lista.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'resultado-box';
-        div.innerHTML = `
-          <strong>Nome:</strong> ${item.nome}<br>
-          <strong>Cargo:</strong> ${item.cargo}<br>
-          <strong>Posição:</strong> ${item.posicao}
-        `;
-        resultado.appendChild(div);
+
+      const listaAmbos = [];
+      nomesAmbos.forEach(nome => {
+        const agenteItem = agentes.find(a => a.nome === nome);
+        const escrivaoItem = escrivaos.find(e => e.nome === nome);
+        
+        listaAmbos.push({
+          nome: nome,
+          posicaoAgente: agenteItem.posicao,
+          posicaoEscrivao: escrivaoItem.posicao
+        });
       });
+
+      mostrarResultados(listaAmbos);
     }
 
     btnBuscar.addEventListener('click', () => {
-      const nomeBusca = inputNome.value.trim().toLowerCase();
-      resultado.innerHTML = "";
-
-      if (!nomeBusca) {
-        resultado.textContent = "Por favor, digite um nome para buscar.";
-        return;
-      }
-
-      const encontrados = dados.filter(item => item.nome.toLowerCase().includes(nomeBusca));
-
-      if (encontrados.length > 0) {
-        exibirResultados(encontrados);
-      } else {
-        resultado.textContent = "Nome não encontrado na lista dos aprovados.";
-      }
+      const nomeBusca = inputNome.value.trim();
+      buscarNome(nomeBusca);
     });
 
     inputNome.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
-        btnBuscar.click();
+        event.preventDefault();
+        const nomeBusca = inputNome.value.trim();
+        buscarNome(nomeBusca);
       }
     });
 
-    btnListarAgentes.addEventListener('click', () => {
-      const agentes = dados.filter(item => item.cargo === 'Agente');
-      exibirResultados(agentes);
-    });
-
-    btnListarEscrivao.addEventListener('click', () => {
-      const escrivaos = dados.filter(item => item.cargo === 'Escrivão');
-      exibirResultados(escrivaos);
+    btnListarAmbos.addEventListener('click', () => {
+      listarAprovadosNosDois();
     });
 
     carregarDados();
@@ -158,6 +271,20 @@
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
