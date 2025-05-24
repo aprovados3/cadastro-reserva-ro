@@ -125,7 +125,7 @@
     <h1>CR - Polícia Civil RO</h1>
     <div id="infoContadores" class="info-box">
       <span>👮‍♂️ <strong>Total Agentes:</strong> <span id="totalAgentes">0</span></span>
-      <span>💼 <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
+      <span>🕵️‍♂️ <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
       <span>🚓 <strong>Total Geral:</strong> <span id="totalGeral">0</span></span>
       <span>⇄ <strong>Total em Ambos:</strong> <span id="totalAmbos">0</span></span>
     </div>
@@ -142,7 +142,7 @@
     <div class="botoes-container">
       <button id="btnListarAmbos">👥 Aprovados em dois cargos</button>
       <button id="btnListarAgentes">👮‍♂️ Listar Agentes</button>
-      <button id="btnListarEscrivao">📝 Listar Escrivães</button>
+      <button id="btnListarEscrivao">🕵️‍♂️ Listar Escrivães</button>
     </div>
 
     <div id="resultado"></div>
@@ -216,7 +216,7 @@
         }
 
         if (item.posicaoEscrivao && item.posicaoEscrivao.toLowerCase() !== 'null') {
-          html += `<strong>📝 Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
+          html += `<strong>🕵️‍♂️ Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
         }
 
         div.innerHTML = html;
