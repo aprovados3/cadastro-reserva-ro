@@ -67,11 +67,11 @@
     }
 
     #mensagem {
-      color: #d9534f; /* vermelho alerta */
+      color: #d9534f;
       font-weight: bold;
       margin-bottom: 10px;
       text-align: center;
-      min-height: 24px; /* para não "pular" quando aparece/desaparece */
+      min-height: 24px;
     }
 
     .buscar-container {
@@ -167,6 +167,10 @@
     let agentes = [];
     let escrivaos = [];
 
+    function removerAcentos(str) {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
     async function carregarCSV(url, cargo) {
       const resposta = await fetch(url);
       const texto = await resposta.text();
@@ -175,7 +179,7 @@
         const partes = linha.split(',');
         const nome = partes[0].replace(/^"|"$/g, '').trim();
         const posicao = partes[1].replace(/^"|"$/g, '').trim();
-        return { nome, posicao, cargo };
+        return { nome, nomeNormalizado: removerAcentos(nome), posicao, cargo };
       });
     }
 
@@ -188,8 +192,8 @@
       totalEscrivaoSpan.textContent = escrivaos.length;
       totalGeralSpan.textContent = dados.length;
 
-      const nomesAgente = new Set(agentes.map(a => a.nome));
-      const nomesEscrivao = new Set(escrivaos.map(e => e.nome));
+      const nomesAgente = new Set(agentes.map(a => a.nomeNormalizado));
+      const nomesEscrivao = new Set(escrivaos.map(e => e.nomeNormalizado));
       const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
       totalAmbosSpan.textContent = nomesAmbos.length;
     }
@@ -234,22 +238,22 @@
         return;
       }
 
-      const nomeMinusculo = nomeBusca.toLowerCase();
-      const encontradosAgente = agentes.filter(a => a.nome.toLowerCase().includes(nomeMinusculo));
-      const encontradosEscrivao = escrivaos.filter(e => e.nome.toLowerCase().includes(nomeMinusculo));
+      const nomeBuscaNormalizado = removerAcentos(nomeBusca);
+
+      const encontradosAgente = agentes.filter(a => a.nomeNormalizado.includes(nomeBuscaNormalizado));
+      const encontradosEscrivao = escrivaos.filter(e => e.nomeNormalizado.includes(nomeBuscaNormalizado));
 
       const nomesUnicosSet = new Set([
-        ...encontradosAgente.map(a => a.nome),
-        ...encontradosEscrivao.map(e => e.nome)
+        ...encontradosAgente.map(a => a.nomeNormalizado),
+        ...encontradosEscrivao.map(e => e.nomeNormalizado)
       ]);
-      const nomesUnicos = [...nomesUnicosSet];
 
-      const listaResultado = nomesUnicos.map(nome => {
-        const agenteItem = encontradosAgente.find(a => a.nome === nome);
-        const escrivaoItem = encontradosEscrivao.find(e => e.nome === nome);
+      const listaResultado = [...nomesUnicosSet].map(nomeNorm => {
+        const agenteItem = agentes.find(a => a.nomeNormalizado === nomeNorm);
+        const escrivaoItem = escrivaos.find(e => e.nomeNormalizado === nomeNorm);
 
         return {
-          nome: nome,
+          nome: agenteItem ? agenteItem.nome : escrivaoItem.nome,
           posicaoAgente: agenteItem ? agenteItem.posicao : null,
           posicaoEscrivao: escrivaoItem ? escrivaoItem.posicao : null
         };
@@ -262,25 +266,24 @@
       resultado.innerHTML = "";
       mostrarMensagemStatus("");
 
-      const nomesAgente = new Set(agentes.map(a => a.nome));
-      const nomesEscrivao = new Set(escrivaos.map(e => e.nome));
-      const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
+      const nomesAgente = new Map(agentes.map(a => [a.nomeNormalizado, a]));
+      const nomesEscrivao = new Map(escrivaos.map(e => [e.nomeNormalizado, e]));
+
+      const nomesAmbos = [...nomesAgente.keys()].filter(nome => nomesEscrivao.has(nome));
 
       if (nomesAmbos.length === 0) {
         mostrarMensagemStatus("❌ Nenhum aprovado em dois cargos encontrado.");
         return;
       }
 
-      const listaAmbos = [];
-      nomesAmbos.forEach(nome => {
-        const agenteItem = agentes.find(a => a.nome === nome);
-        const escrivaoItem = escrivaos.find(e => e.nome === nome);
-
-        listaAmbos.push({
-          nome: nome,
+      const listaAmbos = nomesAmbos.map(nomeNorm => {
+        const agenteItem = nomesAgente.get(nomeNorm);
+        const escrivaoItem = nomesEscrivao.get(nomeNorm);
+        return {
+          nome: agenteItem.nome,
           posicaoAgente: agenteItem.posicao,
           posicaoEscrivao: escrivaoItem.posicao
-        });
+        };
       });
 
       mostrarResultados(listaAmbos);
@@ -341,6 +344,7 @@
   </script>
 </body>
 </html>
+
 
 
 
