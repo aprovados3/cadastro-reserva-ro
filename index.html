@@ -25,15 +25,19 @@
     .container {
       max-width: 600px;
       margin: 40px auto;
-      background: rgba(255, 255, 255, 0.85);
+      
+      /* --- ALTERADO: Preto mais claro (mais transparente) --- */
+      background: rgba(0, 0, 0, 0.65); 
+      /* ------------------------------------------------------ */
+      
       border-radius: 10px;
       padding: 25px 30px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      box-shadow: 0 0 15px rgba(0,0,0,0.5); 
     }
 
     /* --- TÍTULO COM IMAGEM EM CIMA --- */
     h1 {
-      color: #333;
+      color: #fff; 
       margin-bottom: 15px;
       display: flex;
       flex-direction: column;
@@ -43,7 +47,7 @@
     }
 
     .logo-titulo {
-      width: 85px;
+      width: 130px;
       height: auto;
     }
     /* --------------------------------- */
@@ -54,7 +58,7 @@
       justify-content: center;
       gap: 15px;
       font-style: italic;
-      color: #555;
+      color: #eee; /* Texto quase branco */
       margin-bottom: 20px;
       font-weight: 600;
       font-size: 16px;
@@ -63,7 +67,7 @@
 
     label {
       font-weight: bold;
-      color: #555;
+      color: #eee; 
     }
 
     input[type="text"] {
@@ -78,7 +82,7 @@
     }
 
     #mensagem {
-      color: #d9534f;
+      color: #ff6b6b; 
       font-weight: bold;
       margin-bottom: 10px;
       text-align: center;
@@ -132,7 +136,7 @@
       display: flex; 
       align-items: center;
       justify-content: center;
-      gap: 8px; /* Espaço entre o ícone e a palavra */
+      gap: 8px; 
       
       padding: 0; 
       background: none;
@@ -141,24 +145,21 @@
 
       text-decoration: none; 
       
-      /* Cor do texto (cinza escuro para aparecer no fundo branco) */
-      color: #333; 
+      color: #eee; 
       font-weight: bold;
       font-size: 16px;
 
       transition: transform 0.2s ease-in-out, color 0.3s; 
 
-      /* Animação de pulsação */
       animation: instagramPulsando 1.5s infinite alternate;
     }
 
     .btn-instagram:hover {
       opacity: 1;
       transform: scale(1.05); 
-      color: #e1306c; /* Muda para rosa do Instagram ao passar o mouse */
+      color: #e1306c; 
     }
 
-    /* Estilo para a imagem do Instagram dentro do link */
     .btn-instagram img {
       width: 40px; 
       height: auto;
@@ -166,7 +167,6 @@
     }
     /* ----------------------------------------------- */
 
-    /* --- BOTÃO PISCAR --- */
     #btnNoticias {
       animation: sombraPiscando 1.2s infinite alternate;
       position: relative; 
@@ -178,23 +178,23 @@
       100% { box-shadow: 0 0 15px 5px red; }
     }
 
-    /* --- Keyframes para a animação de pulsação do Instagram --- */
     @keyframes instagramPulsando {
       0% {
         transform: scale(1);
       }
       100% {
-        transform: scale(1.08); /* Pulsa levemente */
+        transform: scale(1.08); 
       }
     }
-    /* ----------------------------------------------------------------- */
 
+    /* A caixa de resultados continua clara */
     .resultado-box {
-      border: 2px solid #444;
+      border: 2px solid #555;
       padding: 15px;
       margin-top: 15px;
       border-radius: 8px;
-      background-color: #f0f0f0;
+      background-color: #f9f9f9; 
+      color: #333; 
     }
 
     .resultado-box:hover {
