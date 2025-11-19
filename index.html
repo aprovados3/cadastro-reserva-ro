@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aprovados - Polícia Civil RO</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('civil.jfif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      backdrop-filter: brightness(0.85);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    #infoContadores {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    #mensagem {
+      color: #d9534f;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      min-height: 24px;
+    }
+
+    .buscar-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .botoes-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .buscar-container button,
+    .botoes-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      transition: background-color 0.3s;
+      width: 180px;
+      text-align: center;
+    }
+
+    .buscar-container button:hover,
+    .botoes-container button:hover {
+      background-color: #0056b3;
+    }
+
+    /* --- NOVO CÓDIGO PARA O BOTÃO PISCAR --- */
+    #btnNoticias {
+      /* Animação de sombra vermelha */
+      animation: sombraPiscando 1.2s infinite alternate;
+      /* Garante que a borda vermelha apareça acima de outros elementos se necessário */
+      position: relative; 
+      z-index: 1;
+    }
+
+    @keyframes sombraPiscando {
+      0% {
+        box-shadow: 0 0 0px red;
+      }
+      100% {
+        box-shadow: 0 0 15px 5px red; /* Sombra forte vermelha */
+      }
+    }
+    /* --------------------------------------- */
+
+    .resultado-box {
+      border: 2px solid #444;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+    }
+
+    .resultado-box:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>CR - Polícia Civil RO</h1>
+    <div id="infoContadores" class="info-box">
+      <span>👮‍♂️ <strong>Total Agentes:</strong> <span id="totalAgentes">0</span></span>
+      <span>🕵️‍♂️ <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
+      <span>🚓 <strong>Total (Agentes + Escrivães):</strong> <span id="totalGeral">0</span></span>
+      <span>⇄ <strong>Total em Ambos:</strong> <span id="totalAmbos">0</span></span>
+    </div>
+
+    <label for="inputNome">Digite seu nome:</label>
+    <input type="text" id="inputNome" placeholder="Ex: João Silva" autocomplete="off" />
+
+    <div id="mensagem"></div>
+
+    <div class="buscar-container">
+      <button id="btnBuscar">🔎 Buscar</button>
+    </div>
+
+    <div class="botoes-container">
+      <button id="btnListarAmbos">👮‍♂️🕵️‍♂️ Aprovados em dois cargos</button>
+      <button id="btnListarAgentes">👮‍♂️ Listar Agentes</button>
+      <button id="btnListarEscrivao">🕵️‍♂️ Listar Escrivães</button>
+      
+      <button id="btnNoticias" onclick="window.location.href='movimento.html'">📣 Notícias </button>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const btnBuscar = document.getElementById('btnBuscar');
+    const btnListarAmbos = document.getElementById('btnListarAmbos');
+    const btnListarAgentes = document.getElementById('btnListarAgentes');
+    const btnListarEscrivao = document.getElementById('btnListarEscrivao');
+    const inputNome = document.getElementById('inputNome');
+    const resultado = document.getElementById('resultado');
+    const mensagem = document.getElementById('mensagem');
+
+    const totalAgentesSpan = document.getElementById('totalAgentes');
+    const totalEscrivaoSpan = document.getElementById('totalEscrivao');
+    const totalGeralSpan = document.getElementById('totalGeral');
+    const totalAmbosSpan = document.getElementById('totalAmbos');
+
+    let dados = [];
+    let agentes = [];
+    let escrivaos = [];
+
+    function removerAcentos(str) {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    async function carregarCSV(url, cargo) {
+      const resposta = await fetch(url);
+      const texto = await resposta.text();
+      const linhas = texto.trim().split('\n').filter(linha => linha.trim() !== '');
+      return linhas.map(linha => {
+        const partes = linha.split(',');
+        const nome = partes[0].replace(/^"|"$/g, '').trim();
+        const posicao = partes[1].replace(/^"|"$/g, '').trim();
+        return { nome, nomeNormalizado: removerAcentos(nome), posicao, cargo };
+      });
+    }
+
+    async function carregarDados() {
+      agentes = await carregarCSV('agente.csv', 'Agente');
+      escrivaos = await carregarCSV('escrivao.csv', 'Escrivão');
+      dados = [...agentes, ...escrivaos];
+
+      totalAgentesSpan.textContent = agentes.length;
+      totalEscrivaoSpan.textContent = escrivaos.length;
+      totalGeralSpan.textContent = dados.length;
+
+      const nomesAgente = new Set(agentes.map(a => a.nomeNormalizado));
+      const nomesEscrivao = new Set(escrivaos.map(e => e.nomeNormalizado));
+      const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
+      totalAmbosSpan.textContent = nomesAmbos.length;
+    }
+
+    function mostrarMensagemStatus(texto) {
+      mensagem.textContent = texto;
+    }
+
+    function mostrarResultados(lista) {
+      resultado.innerHTML = "";
+      if (lista.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum resultado encontrado.");
+        return;
+      }
+      mostrarMensagemStatus("");
+
+      lista.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'resultado-box';
+
+        let html = `<strong>Nome:</strong> ${item.nome}<br>`;
+
+        if (item.posicaoAgente && item.posicaoAgente.toLowerCase() !== 'null') {
+          html += `<strong>👮‍♂️ Posição como Agente:</strong>  ${item.posicaoAgente}<br>`;
+        }
+
+        if (item.posicaoEscrivao && item.posicaoEscrivao.toLowerCase() !== 'null') {
+          html += `<strong>🕵️‍♂️ Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
+        }
+
+        div.innerHTML = html;
+        resultado.appendChild(div);
+      });
+    }
+
+    // --- FUNÇÃO DE BUSCA MODIFICADA PARA ACEITAR PARTES DO NOME ---
+    function buscarNome(nomeBusca) {
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
+      if (!nomeBusca) {
+        mostrarMensagemStatus("⚠️ Por favor, digite um nome para buscar.");
+        return;
+      }
+
+      // 1. Normaliza o texto digitado
+      const nomeBuscaNormalizado = removerAcentos(nomeBusca);
+      
+      // 2. Quebra o texto digitado em palavras (termos) individuais, removendo espaços vazios
+      // Ex: "João Silva" vira ["joao", "silva"]
+      const termosBusca = nomeBuscaNormalizado.split(" ").filter(t => t.trim() !== "");
+
+      // 3. Função auxiliar que verifica se o candidato tem TODOS os termos digitados
+      const contemTodosTermos = (candidato) => {
+        return termosBusca.every(termo => candidato.nomeNormalizado.includes(termo));
+      };
+
+      // 4. Filtra usando a nova lógica
+      const encontradosAgente = agentes.filter(contemTodosTermos);
+      const encontradosEscrivao = escrivaos.filter(contemTodosTermos);
+
+      const nomesUnicosSet = new Set([
+        ...encontradosAgente.map(a => a.nomeNormalizado),
+        ...encontradosEscrivao.map(e => e.nomeNormalizado)
+      ]);
+
+      const listaResultado = [...nomesUnicosSet].map(nomeNorm => {
+        const agenteItem = agentes.find(a => a.nomeNormalizado === nomeNorm);
+        const escrivaoItem = escrivaos.find(e => e.nomeNormalizado === nomeNorm);
+
+        return {
+          nome: agenteItem ? agenteItem.nome : escrivaoItem.nome,
+          posicaoAgente: agenteItem ? agenteItem.posicao : null,
+          posicaoEscrivao: escrivaoItem ? escrivaoItem.posicao : null
+        };
+      });
+
+      mostrarResultados(listaResultado);
+    }
+    // --------------------------------------------------------------
+
+    function listarAprovadosNosDois() {
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
+      const nomesAgente = new Map(agentes.map(a => [a.nomeNormalizado, a]));
+      const nomesEscrivao = new Map(escrivaos.map(e => [e.nomeNormalizado, e]));
+
+      const nomesAmbos = [...nomesAgente.keys()].filter(nome => nomesEscrivao.has(nome));
+
+      if (nomesAmbos.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum aprovado em dois cargos encontrado.");
+        return;
+      }
+
+      const listaAmbos = nomesAmbos.map(nomeNorm => {
+        const agenteItem = nomesAgente.get(nomeNorm);
+        const escrivaoItem = nomesEscrivao.get(nomeNorm);
+        return {
+          nome: agenteItem.nome,
+          posicaoAgente: agenteItem.posicao,
+          posicaoEscrivao: escrivaoItem.posicao
+        };
+      });
+
+      mostrarResultados(listaAmbos);
+    }
+
+    function listarAgentes() {
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
+      if (agentes.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum agente encontrado.");
+        return;
+      }
+      const lista = agentes.map(a => ({
+        nome: a.nome,
+        posicaoAgente: a.posicao,
+        posicaoEscrivao: null
+      }));
+      mostrarResultados(lista);
+    }
+
+    function listarEscrivao() {
+      resultado.innerHTML = "";
+      mostrarMensagemStatus("");
+
+      if (escrivaos.length === 0) {
+        mostrarMensagemStatus("❌ Nenhum escrivão encontrado.");
+        return;
+      }
+      const lista = escrivaos.map(e => ({
+        nome: e.nome,
+        posicaoAgente: null,
+        posicaoEscrivao: e.posicao
+      }));
+      mostrarResultados(lista);
+    }
+
+    btnBuscar.addEventListener('click', () => {
+      const nomeBusca = inputNome.value.trim();
+      buscarNome(nomeBusca);
+    });
+
+    inputNome.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnBuscar.click();
+      }
+    });
+
+    btnListarAmbos.addEventListener('click', listarAprovadosNosDois);
+    btnListarAgentes.addEventListener('click', listarAgentes);
+    btnListarEscrivao.addEventListener('click', listarEscrivao);
+
+    carregarDados().catch(e => {
+      mostrarMensagemStatus('Erro ao carregar dados. Atualize a página.');
+      console.error('Erro ao carregar CSV:', e);
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
