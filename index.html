@@ -249,6 +249,7 @@
       });
     }
 
+    // --- FUNÇÃO DE BUSCA MODIFICADA PARA ACEITAR PARTES DO NOME ---
     function buscarNome(nomeBusca) {
       resultado.innerHTML = "";
       mostrarMensagemStatus("");
@@ -258,10 +259,21 @@
         return;
       }
 
+      // 1. Normaliza o texto digitado
       const nomeBuscaNormalizado = removerAcentos(nomeBusca);
+      
+      // 2. Quebra o texto digitado em palavras (termos) individuais, removendo espaços vazios
+      // Ex: "João Silva" vira ["joao", "silva"]
+      const termosBusca = nomeBuscaNormalizado.split(" ").filter(t => t.trim() !== "");
 
-      const encontradosAgente = agentes.filter(a => a.nomeNormalizado.includes(nomeBuscaNormalizado));
-      const encontradosEscrivao = escrivaos.filter(e => e.nomeNormalizado.includes(nomeBuscaNormalizado));
+      // 3. Função auxiliar que verifica se o candidato tem TODOS os termos digitados
+      const contemTodosTermos = (candidato) => {
+        return termosBusca.every(termo => candidato.nomeNormalizado.includes(termo));
+      };
+
+      // 4. Filtra usando a nova lógica
+      const encontradosAgente = agentes.filter(contemTodosTermos);
+      const encontradosEscrivao = escrivaos.filter(contemTodosTermos);
 
       const nomesUnicosSet = new Set([
         ...encontradosAgente.map(a => a.nomeNormalizado),
@@ -281,6 +293,7 @@
 
       mostrarResultados(listaResultado);
     }
+    // --------------------------------------------------------------
 
     function listarAprovadosNosDois() {
       resultado.innerHTML = "";
