@@ -31,11 +31,22 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
 
+    /* --- TÍTULO COM IMAGEM EM CIMA --- */
     h1 {
-      text-align: center;
       color: #333;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
+
+    .logo-titulo {
+      width: 85px;
+      height: auto;
+    }
+    /* --------------------------------- */
 
     #infoContadores {
       display: flex;
@@ -106,24 +117,77 @@
       background-color: #0056b3;
     }
 
-    /* --- NOVO CÓDIGO PARA O BOTÃO PISCAR --- */
+    /* --- CONTAINER SOCIAL NO CANTO --- */
+    .social-row {
+      display: flex;
+      justify-content: flex-end; 
+      margin-top: 15px;          
+      width: 100%;
+      padding-right: 5px;       
+      box-sizing: border-box;
+    }
+
+    /* --- Estilo para o link/ícone do Instagram + TEXTO --- */
+    .btn-instagram {
+      display: flex; 
+      align-items: center;
+      justify-content: center;
+      gap: 8px; /* Espaço entre o ícone e a palavra */
+      
+      padding: 0; 
+      background: none;
+      border: none; 
+      box-shadow: none; 
+
+      text-decoration: none; 
+      
+      /* Cor do texto (cinza escuro para aparecer no fundo branco) */
+      color: #333; 
+      font-weight: bold;
+      font-size: 16px;
+
+      transition: transform 0.2s ease-in-out, color 0.3s; 
+
+      /* Animação de pulsação */
+      animation: instagramPulsando 1.5s infinite alternate;
+    }
+
+    .btn-instagram:hover {
+      opacity: 1;
+      transform: scale(1.05); 
+      color: #e1306c; /* Muda para rosa do Instagram ao passar o mouse */
+    }
+
+    /* Estilo para a imagem do Instagram dentro do link */
+    .btn-instagram img {
+      width: 40px; 
+      height: auto;
+      vertical-align: middle; 
+    }
+    /* ----------------------------------------------- */
+
+    /* --- BOTÃO PISCAR --- */
     #btnNoticias {
-      /* Animação de sombra vermelha */
       animation: sombraPiscando 1.2s infinite alternate;
-      /* Garante que a borda vermelha apareça acima de outros elementos se necessário */
       position: relative; 
       z-index: 1;
     }
 
     @keyframes sombraPiscando {
+      0% { box-shadow: 0 0 0px red; }
+      100% { box-shadow: 0 0 15px 5px red; }
+    }
+
+    /* --- Keyframes para a animação de pulsação do Instagram --- */
+    @keyframes instagramPulsando {
       0% {
-        box-shadow: 0 0 0px red;
+        transform: scale(1);
       }
       100% {
-        box-shadow: 0 0 15px 5px red; /* Sombra forte vermelha */
+        transform: scale(1.08); /* Pulsa levemente */
       }
     }
-    /* --------------------------------------- */
+    /* ----------------------------------------------------------------- */
 
     .resultado-box {
       border: 2px solid #444;
@@ -141,7 +205,11 @@
 <body>
 
   <div class="container">
-    <h1>CR - Polícia Civil RO</h1>
+    <h1>
+      <img src="movimento9.png" alt="Logo" class="logo-titulo">
+      CR - Polícia Civil RO
+    </h1>
+
     <div id="infoContadores" class="info-box">
       <span>👮‍♂️ <strong>Total Agentes:</strong> <span id="totalAgentes">0</span></span>
       <span>🕵️‍♂️ <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
@@ -162,8 +230,14 @@
       <button id="btnListarAmbos">👮‍♂️🕵️‍♂️ Aprovados em dois cargos</button>
       <button id="btnListarAgentes">👮‍♂️ Listar Agentes</button>
       <button id="btnListarEscrivao">🕵️‍♂️ Listar Escrivães</button>
-      
       <button id="btnNoticias" onclick="window.location.href='movimento.html'">📣 Notícias </button>
+    </div>
+
+    <div class="social-row">
+      <a href="https://www.instagram.com/aprovadospcro2022/" target="_blank" class="btn-instagram">
+        <img src="logo-instagram-4096.png" alt="Instagram">
+        <span>Instagram</span>
+      </a>
     </div>
 
     <div id="resultado"></div>
@@ -249,7 +323,6 @@
       });
     }
 
-    // --- FUNÇÃO DE BUSCA MODIFICADA PARA ACEITAR PARTES DO NOME ---
     function buscarNome(nomeBusca) {
       resultado.innerHTML = "";
       mostrarMensagemStatus("");
@@ -259,19 +332,13 @@
         return;
       }
 
-      // 1. Normaliza o texto digitado
       const nomeBuscaNormalizado = removerAcentos(nomeBusca);
-      
-      // 2. Quebra o texto digitado em palavras (termos) individuais, removendo espaços vazios
-      // Ex: "João Silva" vira ["joao", "silva"]
       const termosBusca = nomeBuscaNormalizado.split(" ").filter(t => t.trim() !== "");
 
-      // 3. Função auxiliar que verifica se o candidato tem TODOS os termos digitados
       const contemTodosTermos = (candidato) => {
         return termosBusca.every(termo => candidato.nomeNormalizado.includes(termo));
       };
 
-      // 4. Filtra usando a nova lógica
       const encontradosAgente = agentes.filter(contemTodosTermos);
       const encontradosEscrivao = escrivaos.filter(contemTodosTermos);
 
@@ -293,7 +360,6 @@
 
       mostrarResultados(listaResultado);
     }
-    // --------------------------------------------------------------
 
     function listarAprovadosNosDois() {
       resultado.innerHTML = "";
@@ -377,39 +443,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
