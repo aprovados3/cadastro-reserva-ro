@@ -106,6 +106,25 @@
       background-color: #0056b3;
     }
 
+    /* --- NOVO CÓDIGO PARA O BOTÃO PISCAR --- */
+    #btnNoticias {
+      /* Animação de sombra vermelha */
+      animation: sombraPiscando 1.2s infinite alternate;
+      /* Garante que a borda vermelha apareça acima de outros elementos se necessário */
+      position: relative; 
+      z-index: 1;
+    }
+
+    @keyframes sombraPiscando {
+      0% {
+        box-shadow: 0 0 0px red;
+      }
+      100% {
+        box-shadow: 0 0 15px 5px red; /* Sombra forte vermelha */
+      }
+    }
+    /* --------------------------------------- */
+
     .resultado-box {
       border: 2px solid #444;
       padding: 15px;
@@ -143,7 +162,8 @@
       <button id="btnListarAmbos">👮‍♂️🕵️‍♂️ Aprovados em dois cargos</button>
       <button id="btnListarAgentes">👮‍♂️ Listar Agentes</button>
       <button id="btnListarEscrivao">🕵️‍♂️ Listar Escrivães</button>
-      <button onclick="window.location.href='movimento.html'">📣 Notícias</button>
+      
+      <button id="btnNoticias" onclick="window.location.href='movimento.html'">📣 Notícias </button>
     </div>
 
     <div id="resultado"></div>
