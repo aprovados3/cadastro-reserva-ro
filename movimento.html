@@ -58,12 +58,14 @@
       text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
     }
 
-    /* Galeria responsiva */
+    /* --- ALTERAÇÃO AQUI: Galeria Centralizada --- */
     .galeria {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1.5rem;
       padding: 2rem 1rem;
+      /* Esta linha garante que o bloco de imagens fique no centro da tela */
+      justify-content: center; 
     }
 
     .galeria .item {
@@ -73,7 +75,13 @@
       background-color: white;
       cursor: pointer;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
+      
+      /* Garante que a imagem fique centralizada dentro do card */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+    /* -------------------------------------------- */
 
     .galeria .item:hover,
     .galeria .item:focus-within {
@@ -202,7 +210,6 @@
   </div>
 </section>
 
-<!-- Modal de imagem -->
 <div id="meuModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Visualização ampliada da imagem">
   <button class="close-btn" aria-label="Fechar modal" onclick="fecharModal()">×</button>
   <img id="imagemExpandida" src="" alt="" />
