@@ -25,17 +25,12 @@
     .container {
       max-width: 600px;
       margin: 40px auto;
-      
-      /* --- ALTERADO: Preto mais claro (mais transparente) --- */
       background: rgba(0, 0, 0, 0.65); 
-      /* ------------------------------------------------------ */
-      
       border-radius: 10px;
       padding: 25px 30px;
       box-shadow: 0 0 15px rgba(0,0,0,0.5); 
     }
 
-    /* --- TÍTULO COM IMAGEM EM CIMA --- */
     h1 {
       color: #fff; 
       margin-bottom: 15px;
@@ -50,7 +45,6 @@
       width: 130px;
       height: auto;
     }
-    /* --------------------------------- */
 
     #infoContadores {
       display: flex;
@@ -58,7 +52,7 @@
       justify-content: center;
       gap: 15px;
       font-style: italic;
-      color: #eee; /* Texto quase branco */
+      color: #eee;
       margin-bottom: 20px;
       font-weight: 600;
       font-size: 16px;
@@ -121,36 +115,29 @@
       background-color: #0056b3;
     }
 
-    /* --- CONTAINER SOCIAL NO CANTO --- */
     .social-row {
       display: flex;
       justify-content: flex-end; 
-      margin-top: 15px;          
+      margin-top: 15px;         
       width: 100%;
       padding-right: 5px;       
       box-sizing: border-box;
     }
 
-    /* --- Estilo para o link/ícone do Instagram + TEXTO --- */
     .btn-instagram {
       display: flex; 
       align-items: center;
       justify-content: center;
       gap: 8px; 
-      
       padding: 0; 
       background: none;
       border: none; 
       box-shadow: none; 
-
       text-decoration: none; 
-      
       color: #eee; 
       font-weight: bold;
       font-size: 16px;
-
       transition: transform 0.2s ease-in-out, color 0.3s; 
-
       animation: instagramPulsando 1.5s infinite alternate;
     }
 
@@ -165,7 +152,6 @@
       height: auto;
       vertical-align: middle; 
     }
-    /* ----------------------------------------------- */
 
     #btnNoticias {
       animation: sombraPiscando 1.2s infinite alternate;
@@ -187,7 +173,6 @@
       }
     }
 
-    /* A caixa de resultados continua clara */
     .resultado-box {
       border: 2px solid #555;
       padding: 15px;
@@ -211,10 +196,7 @@
     </h1>
 
     <div id="infoContadores" class="info-box">
-      <span>👮‍♂️ <strong>Total Agentes:</strong> <span id="totalAgentes">0</span></span>
       <span>🕵️‍♂️ <strong>Total Escrivães:</strong> <span id="totalEscrivao">0</span></span>
-      <span>🚓 <strong>Total (Agentes + Escrivães):</strong> <span id="totalGeral">0</span></span>
-      <span>⇄ <strong>Total em Ambos:</strong> <span id="totalAmbos">0</span></span>
     </div>
 
     <label for="inputNome">Digite seu nome:</label>
@@ -227,8 +209,6 @@
     </div>
 
     <div class="botoes-container">
-      <button id="btnListarAmbos">👮‍♂️🕵️‍♂️ Aprovados em dois cargos</button>
-      <button id="btnListarAgentes">👮‍♂️ Listar Agentes</button>
       <button id="btnListarEscrivao">🕵️‍♂️ Listar Escrivães</button>
       <button id="btnNoticias" onclick="window.location.href='movimento.html'">📣 Notícias </button>
     </div>
@@ -245,20 +225,13 @@
 
   <script>
     const btnBuscar = document.getElementById('btnBuscar');
-    const btnListarAmbos = document.getElementById('btnListarAmbos');
-    const btnListarAgentes = document.getElementById('btnListarAgentes');
     const btnListarEscrivao = document.getElementById('btnListarEscrivao');
     const inputNome = document.getElementById('inputNome');
     const resultado = document.getElementById('resultado');
     const mensagem = document.getElementById('mensagem');
 
-    const totalAgentesSpan = document.getElementById('totalAgentes');
     const totalEscrivaoSpan = document.getElementById('totalEscrivao');
-    const totalGeralSpan = document.getElementById('totalGeral');
-    const totalAmbosSpan = document.getElementById('totalAmbos');
 
-    let dados = [];
-    let agentes = [];
     let escrivaos = [];
 
     function removerAcentos(str) {
@@ -278,18 +251,8 @@
     }
 
     async function carregarDados() {
-      agentes = await carregarCSV('agente.csv', 'Agente');
       escrivaos = await carregarCSV('escrivao.csv', 'Escrivão');
-      dados = [...agentes, ...escrivaos];
-
-      totalAgentesSpan.textContent = agentes.length;
       totalEscrivaoSpan.textContent = escrivaos.length;
-      totalGeralSpan.textContent = dados.length;
-
-      const nomesAgente = new Set(agentes.map(a => a.nomeNormalizado));
-      const nomesEscrivao = new Set(escrivaos.map(e => e.nomeNormalizado));
-      const nomesAmbos = [...nomesAgente].filter(nome => nomesEscrivao.has(nome));
-      totalAmbosSpan.textContent = nomesAmbos.length;
     }
 
     function mostrarMensagemStatus(texto) {
@@ -309,10 +272,6 @@
         div.className = 'resultado-box';
 
         let html = `<strong>Nome:</strong> ${item.nome}<br>`;
-
-        if (item.posicaoAgente && item.posicaoAgente.toLowerCase() !== 'null') {
-          html += `<strong>👮‍♂️ Posição como Agente:</strong>  ${item.posicaoAgente}<br>`;
-        }
 
         if (item.posicaoEscrivao && item.posicaoEscrivao.toLowerCase() !== 'null') {
           html += `<strong>🕵️‍♂️ Posição como Escrivão:</strong>  ${item.posicaoEscrivao}<br>`;
@@ -339,69 +298,14 @@
         return termosBusca.every(termo => candidato.nomeNormalizado.includes(termo));
       };
 
-      const encontradosAgente = agentes.filter(contemTodosTermos);
       const encontradosEscrivao = escrivaos.filter(contemTodosTermos);
 
-      const nomesUnicosSet = new Set([
-        ...encontradosAgente.map(a => a.nomeNormalizado),
-        ...encontradosEscrivao.map(e => e.nomeNormalizado)
-      ]);
-
-      const listaResultado = [...nomesUnicosSet].map(nomeNorm => {
-        const agenteItem = agentes.find(a => a.nomeNormalizado === nomeNorm);
-        const escrivaoItem = escrivaos.find(e => e.nomeNormalizado === nomeNorm);
-
-        return {
-          nome: agenteItem ? agenteItem.nome : escrivaoItem.nome,
-          posicaoAgente: agenteItem ? agenteItem.posicao : null,
-          posicaoEscrivao: escrivaoItem ? escrivaoItem.posicao : null
-        };
-      });
+      const listaResultado = encontradosEscrivao.map(e => ({
+        nome: e.nome,
+        posicaoEscrivao: e.posicao
+      }));
 
       mostrarResultados(listaResultado);
-    }
-
-    function listarAprovadosNosDois() {
-      resultado.innerHTML = "";
-      mostrarMensagemStatus("");
-
-      const nomesAgente = new Map(agentes.map(a => [a.nomeNormalizado, a]));
-      const nomesEscrivao = new Map(escrivaos.map(e => [e.nomeNormalizado, e]));
-
-      const nomesAmbos = [...nomesAgente.keys()].filter(nome => nomesEscrivao.has(nome));
-
-      if (nomesAmbos.length === 0) {
-        mostrarMensagemStatus("❌ Nenhum aprovado em dois cargos encontrado.");
-        return;
-      }
-
-      const listaAmbos = nomesAmbos.map(nomeNorm => {
-        const agenteItem = nomesAgente.get(nomeNorm);
-        const escrivaoItem = nomesEscrivao.get(nomeNorm);
-        return {
-          nome: agenteItem.nome,
-          posicaoAgente: agenteItem.posicao,
-          posicaoEscrivao: escrivaoItem.posicao
-        };
-      });
-
-      mostrarResultados(listaAmbos);
-    }
-
-    function listarAgentes() {
-      resultado.innerHTML = "";
-      mostrarMensagemStatus("");
-
-      if (agentes.length === 0) {
-        mostrarMensagemStatus("❌ Nenhum agente encontrado.");
-        return;
-      }
-      const lista = agentes.map(a => ({
-        nome: a.nome,
-        posicaoAgente: a.posicao,
-        posicaoEscrivao: null
-      }));
-      mostrarResultados(lista);
     }
 
     function listarEscrivao() {
@@ -414,7 +318,6 @@
       }
       const lista = escrivaos.map(e => ({
         nome: e.nome,
-        posicaoAgente: null,
         posicaoEscrivao: e.posicao
       }));
       mostrarResultados(lista);
@@ -432,8 +335,6 @@
       }
     });
 
-    btnListarAmbos.addEventListener('click', listarAprovadosNosDois);
-    btnListarAgentes.addEventListener('click', listarAgentes);
     btnListarEscrivao.addEventListener('click', listarEscrivao);
 
     carregarDados().catch(e => {
